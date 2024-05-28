@@ -7,6 +7,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class CmdTest {
 
     @Test
+    public void testInit_parsesEmptyArgs() {
+        String[] args = {};
+        Cmd cmd = new Cmd();
+        cmd.init(args);
+
+        assertFalse(cmd.isVersionFlag(), "Version flag should be false");
+        assertFalse(cmd.isHelpFlag(), "Help flag should be false");
+        assertNull(cmd.getCpOption(), "CpOption should be null");
+        assertNull(cmd.getClazz(), "Clazz should be null");
+        assertNull(cmd.getArgs(), "Args should be null");
+    }
+
+    @Test
     public void testInit_parsesVersionFlag() {
         String[] args = {"-version"};
         Cmd cmd = new Cmd();
