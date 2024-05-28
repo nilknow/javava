@@ -1,6 +1,8 @@
 package com.nilknow;
 
 import com.google.common.base.Strings;
+import com.nilknow.classfile.ClassFile;
+import com.nilknow.classfile.ClassFileReader;
 
 import java.io.IOException;
 
@@ -23,6 +25,8 @@ public class Javava {
         System.out.printf("classpath:%s class:%s \n", cmd.getCpOption(), cmd.getClazz());
         ClassPath cp = new ClassPath(cmd.getCpOption());
         byte[] bytes = cp.readClass(cmd.getClazz());
-        System.out.println(new String(bytes));
+        ClassFileReader reader = new ClassFileReader(new ClassByteReader(bytes));
+        ClassFile cf = reader.read();
+        System.out.println(cf);
     }
 }
