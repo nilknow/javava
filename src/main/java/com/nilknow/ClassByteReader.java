@@ -1,9 +1,8 @@
 package com.nilknow;
 
-import com.nilknow.classfile.AttributeInfo;
-import com.nilknow.classfile.ConstantPool;
-import com.nilknow.classfile.FieldInfo;
-import com.nilknow.classfile.MethodInfo;
+import com.nilknow.classfile.*;
+import com.nilknow.classfile.constantInfo.*;
+import com.nilknow.util.DecodeUtil;
 
 import java.io.EOFException;
 
@@ -17,7 +16,7 @@ public class ClassByteReader implements ClassReader{
     }
 
     @Override
-    public int readByte() throws EOFException {
+    public int readUint8() throws EOFException {
         if (pos >= data.length) {
             throw new EOFException("Reached end of data");
         }
@@ -26,36 +25,67 @@ public class ClassByteReader implements ClassReader{
 
     @Override
     public int readUint16() throws EOFException {
-        int b1 = readByte();
-        int b2 = readByte();
+        int b1 = readUint8();
+        int b2 = readUint8();
         return (b1 << 8) | b2; // Combine bytes into short (big-endian)
     }
 
     @Override
     public long readUint32() throws EOFException {
-        int b1 = readByte();
-        int b2 = readByte();
-        int b3 = readByte();
-        int b4 = readByte();
+        int b1 = readUint8();
+        int b2 = readUint8();
+        int b3 = readUint8();
+        int b4 = readUint8();
         return ((long) b1 << 24) | ((long) b2 << 16) | ((long) b3 << 8) | b4; // Combine bytes into int (big-endian)
     }
 
     @Override
     public long readUint64() throws EOFException {
-        int b1 = readByte();
-        int b2 = readByte();
-        int b3 = readByte();
-        int b4 = readByte();
-        int b5 = readByte();
-        int b6 = readByte();
-        int b7 = readByte();
-        int b8 = readByte();
+        int b1 = readUint8();
+        int b2 = readUint8();
+        int b3 = readUint8();
+        int b4 = readUint8();
+        int b5 = readUint8();
+        int b6 = readUint8();
+        int b7 = readUint8();
+        int b8 = readUint8();
         return (((long) b1 << 56) | ((long) b2 << 48) | ((long) b3 << 40) | ((long) b4 << 32)
                 | ((long) b5 << 24) | ((long) b6 << 16) | ((long) b7 << 8) | b8); // Combine bytes into long (big-endian)
     }
 
     @Override
-    public ConstantPool readConstantPool() {
+    public byte[] readBytes(int length) throws EOFException {
+        byte[] bytes = new byte[length];
+        System.arraycopy(data, pos, bytes, 0, length);
+        pos += length;
+        return bytes;
+    }
+
+    @Override
+    public ConstantPool readConstantPool() throws EOFException {
+        int cpCount = readUint16();
+        ConstantPool cp = new ConstantPool(cpCount);
+        for (int i = 1; i < cpCount; i++) {
+            cp.getConstantInfos().add(readConstantInfo());
+        }
+        return cp;
+    }
+
+    @Override
+    public ConstantInfo readConstantInfo() throws EOFException {
+        int tag = readUint8();
+        switch (tag) {
+            case ConstantInfo.CONSTANT_Utf8:
+                int length = readUint16();
+                byte[] bytes = readBytes(length);
+                return new ConstantUtf8Info(DecodeUtil.decode(bytes));
+            case ConstantInfo.CONSTANT_Class:
+                return new ConstantClassInfo(readUint16());
+            case ConstantInfo.CONSTANT_Methodref:
+                return new ConstantMethodRefInfo(readUint16(), readUint16());
+            case ConstantInfo.CONSTANT_NameAndType:
+                return new ConstantNameAndTypeInfo(readUint16(), readUint16());
+        }
         return null;
     }
 

@@ -1,14 +1,12 @@
 package com.nilknow;
 
-import com.nilknow.classfile.AttributeInfo;
-import com.nilknow.classfile.ConstantPool;
-import com.nilknow.classfile.FieldInfo;
-import com.nilknow.classfile.MethodInfo;
+import com.nilknow.classfile.*;
+import com.nilknow.classfile.constantInfo.ConstantInfo;
 
 import java.io.EOFException;
 
 public interface ClassReader {
-    int readByte() throws EOFException;
+    int readUint8() throws EOFException;
 
     int readUint16() throws EOFException;
 
@@ -16,7 +14,11 @@ public interface ClassReader {
 
     long readUint64() throws EOFException;
 
-    ConstantPool readConstantPool();
+    byte[] readBytes(int length) throws EOFException;
+
+    ConstantPool readConstantPool() throws EOFException;
+
+    ConstantInfo readConstantInfo() throws EOFException;
 
     int[] readInterfaces();
 
