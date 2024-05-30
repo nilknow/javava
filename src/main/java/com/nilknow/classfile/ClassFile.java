@@ -1,5 +1,6 @@
 package com.nilknow.classfile;
 
+import com.nilknow.classfile.attributeInfo.AttributeInfo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -1,12 +1,13 @@
 package com.nilknow;
 
 import com.nilknow.classfile.*;
+import com.nilknow.classfile.attributeInfo.*;
 import com.nilknow.classfile.constantInfo.*;
 import com.nilknow.util.DecodeUtil;
 
 import java.io.EOFException;
 
-public class ClassByteReader implements ClassReader{
+public class ClassByteReader implements ClassReader {
     private final byte[] data;
     private int pos;
 
@@ -90,22 +91,97 @@ public class ClassByteReader implements ClassReader{
     }
 
     @Override
-    public int[] readInterfaces() {
+    public int[] readInterfaces() throws EOFException {
+        int count = readUint16();
         return new int[0];
     }
 
     @Override
-    public FieldInfo[] readFields() {
-        return new FieldInfo[0];
+    public FieldInfo[] readFields() throws EOFException {
+        int count = readUint16();
+        FieldInfo[] fieldInfos = new FieldInfo[count];
+        for (int i = 0; i < count; i++) {
+            fieldInfos[i] = new FieldInfo(readUint16(), readUint16(), readUint16());
+        }
+        return fieldInfos;
     }
 
     @Override
-    public MethodInfo[] readMethods() {
-        return new MethodInfo[0];
+    public MethodInfo[] readMethods(ConstantPool cp) throws EOFException {
+        int count = readUint16();
+        MethodInfo[] methodInfos = new MethodInfo[count];
+        for (int i = 0; i < count; i++) {
+            int accessFlags = readUint16();
+            int nameIndex = readUint16();
+            int descriptorIndex = readUint16();
+            AttributeInfo[] attributeInfos = readAttributes(cp);
+            methodInfos[i] = new MethodInfo(
+                    accessFlags,
+                    nameIndex,
+                    descriptorIndex,
+                    attributeInfos
+            );
+        }
+        return methodInfos;
     }
 
     @Override
-    public AttributeInfo[] readAttributes() {
-        return new AttributeInfo[0];
+    public AttributeInfo[] readAttributes(ConstantPool cp) throws EOFException {
+        int count = readUint16();
+        AttributeInfo[] attributeInfos = new AttributeInfo[count];
+        for (int i = 0; i < count; i++) {
+            attributeInfos[i] = readAttribute(cp);
+        }
+        return attributeInfos;
+    }
+
+    @Override
+    public AttributeInfo readAttribute(ConstantPool cp) throws EOFException {
+        int attrNameIndex = readUint16();
+        String attrName = cp.getName(attrNameIndex);
+        long attrLength = readUint32();
+        switch (attrName) {
+            case "Code":
+                int maxStack = readUint16();
+                int maxLocals = readUint16();
+                int codeLength = (int) readUint32();
+                byte[] code = readBytes((int) codeLength);
+
+                int exceptionTableLength = readUint16();
+                ExceptionTableEntry[] exceptionTable = new ExceptionTableEntry[exceptionTableLength];
+                for (int i = 0; i < exceptionTableLength; i++) {
+                    exceptionTable[i] = new ExceptionTableEntry(readUint16(), readUint16(), readUint16(), readUint16());
+                }
+
+                int attributesCount = readUint16();
+                AttributeInfo[] attributes = new AttributeInfo[attributesCount];
+                for (int i = 0; i < attributesCount; i++) {
+                    attributes[i] = readAttribute(cp);
+                }
+                return new CodeAttribute(
+                        attrNameIndex,
+                        (int) attrLength,
+                        maxStack,
+                        maxLocals,
+                        codeLength,
+                        code,
+                        exceptionTable,
+                        attributesCount,
+                        attributes
+                );
+            case "LineNumberTable":
+                int lineNumberTableLength = readUint16();
+                LineNumberTableEntry[] lineNumberTableEntries = new LineNumberTableEntry[lineNumberTableLength];
+                for (int i = 0; i < lineNumberTableLength; i++) {
+                    lineNumberTableEntries[i] = new LineNumberTableEntry(readUint16(), readUint16());
+                }
+                return new LineNumberTableAttribute(attrNameIndex, (int) attrLength, lineNumberTableLength, lineNumberTableEntries);
+            case "SourceFile":
+                int sourceFileIndex = readUint16();
+                return new SourceFileAttribute(attrNameIndex, (int) attrLength, sourceFileIndex);
+            default:
+                System.out.println("Unknown attribute: " + attrName);
+        }
+        return null;
     }
 }

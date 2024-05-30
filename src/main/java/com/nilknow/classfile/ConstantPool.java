@@ -1,6 +1,8 @@
 package com.nilknow.classfile;
 
+import com.nilknow.classfile.constantInfo.ConstantClassInfo;
 import com.nilknow.classfile.constantInfo.ConstantInfo;
+import com.nilknow.classfile.constantInfo.ConstantUtf8Info;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -19,5 +21,22 @@ public class ConstantPool {
         return "ConstantPool{" +
                 "constantInfosSize=" + constantInfos.size() +
                 '}';
+    }
+
+    public String getName(int nameIndex) {
+        // 1. Get the constant pool entry at the given index
+        ConstantInfo constantInfo = this.getConstantInfo(nameIndex);
+
+        // 2. Check the type of the constantInfo object and extract the name based on the type
+        switch (constantInfo.getTag()) {
+            case ConstantInfo.CONSTANT_Utf8:
+                return ((ConstantUtf8Info) constantInfo).getValue();  // Cast and get value
+            default:
+                throw new IllegalArgumentException("Unsupported constant pool entry type: " + constantInfo.getTag());
+        }
+    }
+
+    private ConstantInfo getConstantInfo(int index) {
+        return this.getConstantInfos().get(index - 1);
     }
 }

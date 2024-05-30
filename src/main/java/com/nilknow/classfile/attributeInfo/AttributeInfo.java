@@ -1,4 +1,4 @@
-package com.nilknow.classfile;
+package com.nilknow.classfile.attributeInfo;
 
 import lombok.Data;
 
@@ -6,5 +6,4 @@ import lombok.Data;
 public class AttributeInfo {
     private final int nameIndex;
     private final int length;
-    private final byte[] info;
 }

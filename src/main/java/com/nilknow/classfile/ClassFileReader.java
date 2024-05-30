@@ -1,6 +1,7 @@
 package com.nilknow.classfile;
 
 import com.nilknow.ClassReader;
+import com.nilknow.classfile.attributeInfo.AttributeInfo;
 import lombok.Data;
 
 import java.io.EOFException;
@@ -20,19 +21,19 @@ public class ClassFileReader {
         long magicNumber = this.classReader.readUint32();
         int minorVersion = this.classReader.readUint16();
         int majorVersion = this.classReader.readUint16();
-        ConstantPool constantPool= this.classReader.readConstantPool();
+        ConstantPool cp= this.classReader.readConstantPool();
         int accessFlags = this.classReader.readUint16();
         int thisClass = this.classReader.readUint16();
         int superClass = this.classReader.readUint16();
         int[] interfaceInfos = this.classReader.readInterfaces();
         FieldInfo[] fields=this.classReader.readFields();
-        MethodInfo[] methods=this.classReader.readMethods();
-        AttributeInfo[] attributes=this.classReader.readAttributes();
+        MethodInfo[] methods=this.classReader.readMethods(cp);
+        AttributeInfo[] attributes=this.classReader.readAttributes(cp);
 
         cf.setMagicNumber(magicNumber);
         cf.setMinorVersion(minorVersion);
         cf.setMajorVersion(majorVersion);
-        cf.setConstantPool(constantPool);
+        cf.setConstantPool(cp);
         cf.setAccessFlags(accessFlags);
         cf.setThisClass(thisClass);
         cf.setSuperClass(superClass);

@@ -1,6 +1,7 @@
 package com.nilknow;
 
 import com.nilknow.classfile.*;
+import com.nilknow.classfile.attributeInfo.AttributeInfo;
 import com.nilknow.classfile.constantInfo.ConstantInfo;
 
 import java.io.EOFException;
@@ -20,11 +21,13 @@ public interface ClassReader {
 
     ConstantInfo readConstantInfo() throws EOFException;
 
-    int[] readInterfaces();
+    int[] readInterfaces() throws EOFException;
 
-    FieldInfo[] readFields();
+    FieldInfo[] readFields() throws EOFException;
 
-    MethodInfo[] readMethods();
+    MethodInfo[] readMethods(ConstantPool cp) throws EOFException;
 
-    AttributeInfo[] readAttributes();
+    AttributeInfo[] readAttributes(ConstantPool cp) throws EOFException;
+
+    AttributeInfo readAttribute(ConstantPool cp) throws EOFException;
 }
