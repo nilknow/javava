@@ -93,6 +93,8 @@ public class ClassByteReader implements ClassReader {
                 return new ConstantClassInfo(readUint16());
             case ConstantInfo.CONSTANT_String:
                 return new ConstantStringInfo(readUint16());
+            case ConstantInfo.CONSTANT_Fieldref:
+                return new ConstantFieldRefInfo(readUint16(), readUint16());
             case ConstantInfo.CONSTANT_Methodref:
                 return new ConstantMethodRefInfo(readUint16(), readUint16());
             case ConstantInfo.CONSTANT_NameAndType:
