@@ -17,9 +17,11 @@ public class Thread {
 
     public interface Opcode {
         byte NOP = 0;
-        byte ICONST_1 = 3;
+        byte ICONST_0 = 3;
         byte IADD = 1; // Add instruction (example)
-        byte RETURN=-79;
+        byte ICONST_1 = 4; // Add instruction (example)
+        byte ISTORE_1 = 60;
+        byte RETURN = -79;
     }
 
     public void runMethod(MethodInfo methodInfo, ConstantPool cp) throws Exception {
@@ -53,6 +55,8 @@ public class Thread {
                     int operand1 = (int) frame.getOperandStack().pop();
                     frame.getOperandStack().push(operand1 + operand2);
                     break;
+                case Opcode.ISTORE_1: // Store integer on stack to local variable 1
+                    frame.setLocalVariable(1, frame.getOperandStack().pop());
                 case Opcode.RETURN:
                     break;
                 default:
@@ -61,7 +65,7 @@ public class Thread {
         }
 
         // Assuming the method is void (modify for returning values)
-        if (!MethodInfoUtil.getMethodDescription(methodInfo,cp).endsWith(")V")) {
+        if (!MethodInfoUtil.getMethodDescription(methodInfo, cp).endsWith(")V")) {
             throw new Exception("Currently only void methods are supported");
         }
 
