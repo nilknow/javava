@@ -1,6 +1,5 @@
 package com.nilknow.classfile;
 
-import com.nilknow.classfile.constantInfo.ConstantClassInfo;
 import com.nilknow.classfile.constantInfo.ConstantInfo;
 import com.nilknow.classfile.constantInfo.ConstantUtf8Info;
 import lombok.Data;
@@ -23,7 +22,7 @@ public class ConstantPool {
                 '}';
     }
 
-    public String getName(int nameIndex) {
+    public String getUtf8(int nameIndex) {
         // 1. Get the constant pool entry at the given index
         ConstantInfo constantInfo = this.getConstantInfo(nameIndex);
 

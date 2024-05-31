@@ -18,4 +18,8 @@ public class MethodInfo {
         this.attributes = attributes;
     }
 
+    public boolean isStatic() {
+        return (accessFlags & AccessFlags.ACC_STATIC) != 0;
+    }
+
 }

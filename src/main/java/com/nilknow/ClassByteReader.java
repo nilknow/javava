@@ -25,6 +25,14 @@ public class ClassByteReader implements ClassReader {
     }
 
     @Override
+    public byte readByte() throws EOFException {
+        if (pos >= data.length) {
+            throw new EOFException("Reached end of data");
+        }
+        return data[pos++];
+    }
+
+    @Override
     public int readUint16() throws EOFException {
         int b1 = readUint8();
         int b2 = readUint8();
@@ -57,8 +65,9 @@ public class ClassByteReader implements ClassReader {
     @Override
     public byte[] readBytes(int length) throws EOFException {
         byte[] bytes = new byte[length];
-        System.arraycopy(data, pos, bytes, 0, length);
-        pos += length;
+        for (int i = 0; i < length; i++) {
+            bytes[i] = readByte();
+        }
         return bytes;
     }
 
@@ -138,14 +147,14 @@ public class ClassByteReader implements ClassReader {
     @Override
     public AttributeInfo readAttribute(ConstantPool cp) throws EOFException {
         int attrNameIndex = readUint16();
-        String attrName = cp.getName(attrNameIndex);
+        String attrName = cp.getUtf8(attrNameIndex);
         long attrLength = readUint32();
         switch (attrName) {
             case "Code":
                 int maxStack = readUint16();
                 int maxLocals = readUint16();
                 int codeLength = (int) readUint32();
-                byte[] code = readBytes((int) codeLength);
+                byte[] code = readBytes(codeLength);
 
                 int exceptionTableLength = readUint16();
                 ExceptionTableEntry[] exceptionTable = new ExceptionTableEntry[exceptionTableLength];
@@ -161,6 +170,7 @@ public class ClassByteReader implements ClassReader {
                 return new CodeAttribute(
                         attrNameIndex,
                         (int) attrLength,
+                        attrName,
                         maxStack,
                         maxLocals,
                         codeLength,
@@ -175,10 +185,10 @@ public class ClassByteReader implements ClassReader {
                 for (int i = 0; i < lineNumberTableLength; i++) {
                     lineNumberTableEntries[i] = new LineNumberTableEntry(readUint16(), readUint16());
                 }
-                return new LineNumberTableAttribute(attrNameIndex, (int) attrLength, lineNumberTableLength, lineNumberTableEntries);
+                return new LineNumberTableAttribute(attrNameIndex, (int) attrLength, attrName, lineNumberTableLength, lineNumberTableEntries);
             case "SourceFile":
                 int sourceFileIndex = readUint16();
-                return new SourceFileAttribute(attrNameIndex, (int) attrLength, sourceFileIndex);
+                return new SourceFileAttribute(attrNameIndex, (int) attrLength, attrName, sourceFileIndex);
             default:
                 System.out.println("Unknown attribute: " + attrName);
         }

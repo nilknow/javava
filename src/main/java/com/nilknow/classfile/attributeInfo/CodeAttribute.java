@@ -13,8 +13,8 @@ public class CodeAttribute extends AttributeInfo {
     private final int attributesCount;
     private final AttributeInfo[] attributes;
 
-    public CodeAttribute(int nameIndex, int length, int maxStack, int maxLocals, int codeLength, byte[] code, ExceptionTableEntry[] exceptionTable, int attributesCount, AttributeInfo[] attributes) {
-        super(nameIndex, length);
+    public CodeAttribute(int nameIndex, int length, String attrName, int maxStack, int maxLocals, int codeLength, byte[] code, ExceptionTableEntry[] exceptionTable, int attributesCount, AttributeInfo[] attributes) {
+        super(nameIndex, length, attrName);
         this.maxStack = maxStack;
         this.maxLocals = maxLocals;
         this.codeLength = codeLength;

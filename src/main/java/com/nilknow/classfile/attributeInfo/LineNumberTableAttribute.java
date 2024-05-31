@@ -6,9 +6,10 @@ public class LineNumberTableAttribute extends AttributeInfo {
 
     public LineNumberTableAttribute(int nameIndex,
                                     int length,
+                                    String attrName,
                                     int lineNumberTableLength,
                                     LineNumberTableEntry[] lineNumberTable) {
-        super(nameIndex, length);
+        super(nameIndex, length,attrName);
         this.lineNumberTableLength = lineNumberTableLength;
         this.lineNumberTable = lineNumberTable;
     }

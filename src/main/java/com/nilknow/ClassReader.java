@@ -9,6 +9,8 @@ import java.io.EOFException;
 public interface ClassReader {
     int readUint8() throws EOFException;
 
+    byte readByte() throws EOFException;
+
     int readUint16() throws EOFException;
 
     long readUint32() throws EOFException;
