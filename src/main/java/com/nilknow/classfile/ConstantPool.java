@@ -1,6 +1,7 @@
 package com.nilknow.classfile;
 
 import com.nilknow.classfile.constantInfo.ConstantInfo;
+import com.nilknow.classfile.constantInfo.ConstantStringInfo;
 import com.nilknow.classfile.constantInfo.ConstantUtf8Info;
 import lombok.Data;
 
@@ -30,6 +31,9 @@ public class ConstantPool {
         switch (constantInfo.getTag()) {
             case ConstantInfo.CONSTANT_Utf8:
                 return ((ConstantUtf8Info) constantInfo).getValue();  // Cast and get value
+            case ConstantInfo.CONSTANT_String:
+                int stringIndex = ((ConstantStringInfo) constantInfo).getStringIndex();
+                return getUtf8(stringIndex);
             default:
                 throw new IllegalArgumentException("Unsupported constant pool entry type: " + constantInfo.getTag());
         }

@@ -91,6 +91,8 @@ public class ClassByteReader implements ClassReader {
                 return new ConstantUtf8Info(DecodeUtil.decode(bytes));
             case ConstantInfo.CONSTANT_Class:
                 return new ConstantClassInfo(readUint16());
+            case ConstantInfo.CONSTANT_String:
+                return new ConstantStringInfo(readUint16());
             case ConstantInfo.CONSTANT_Methodref:
                 return new ConstantMethodRefInfo(readUint16(), readUint16());
             case ConstantInfo.CONSTANT_NameAndType:

@@ -19,8 +19,10 @@ public class Thread {
         byte NOP = 0;
         byte ICONST_0 = 3;
         byte ICONST_1 = 4; // Add instruction (example)
+        byte LDC = 18;
         byte ILOAD_1 = 27;
         byte ILOAD_2 = 28;
+        byte ASTORE = 58;
         byte ISTORE_1 = 60;
         byte ISTORE_2 = 61;
         byte ISTORE_3 = 62;
@@ -47,7 +49,8 @@ public class Thread {
         this.stack.push(frame);
 
         // Simplified bytecode execution loop (replace with full interpretation logic)
-        for (byte instruction : codeAttribute.getCode()) {
+        for (int i = 0; i < codeAttribute.getCode().length; i++) {
+            byte instruction = codeAttribute.getCode()[i];
             switch (instruction) {
                 case Opcode.NOP: // No operation (skip)
                     break;
@@ -57,11 +60,20 @@ public class Thread {
                 case Opcode.ICONST_1: // Push constant 1 onto the stack
                     frame.getOperandStack().push(1);
                     break;
+                case Opcode.LDC: // Push String constant onto stack
+                    int opVal = codeAttribute.getCode()[++i];
+                    String str = cp.getUtf8(opVal);
+                    frame.getOperandStack().push(str);
+                    break;
                 case Opcode.ILOAD_1:  // Load integer from local variable 1 onto stack
                     frame.getOperandStack().push(frame.getLocalVariables()[1]);
                     break;
                 case Opcode.ILOAD_2:
                     frame.getOperandStack().push(frame.getLocalVariables()[2]);
+                    break;
+                case Opcode.ASTORE:
+                    int index = codeAttribute.getCode()[++i];
+                    frame.setLocalVariable(index, frame.getOperandStack().pop());
                     break;
                 case Opcode.IADD: // Pop two integers from stack, add and push result
                     int operand2 = (int) frame.getOperandStack().pop();
@@ -69,13 +81,13 @@ public class Thread {
                     frame.getOperandStack().push(operand1 + operand2);
                     break;
                 case Opcode.ISTORE_1: // Store integer on stack to local variable 1
-                    frame.setLocalVariable(1, frame.getOperandStack().pop());
+                    frame.setLocalVariable(1, (int) frame.getOperandStack().pop());
                     break;
                 case Opcode.ISTORE_2:
-                    frame.setLocalVariable(2, frame.getOperandStack().pop());
+                    frame.setLocalVariable(2, (int) frame.getOperandStack().pop());
                     break;
                 case Opcode.ISTORE_3:
-                    frame.setLocalVariable(3, frame.getOperandStack().pop());
+                    frame.setLocalVariable(3, (int) frame.getOperandStack().pop());
                     break;
                 case Opcode.RETURN:
                     break;
